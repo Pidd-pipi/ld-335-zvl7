@@ -6,6 +6,7 @@ import (
 	"github.com/blueship581/gbinsureapi/internal/model"
 	"github.com/blueship581/gbinsureapi/internal/util"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // SettlementOrderRepository 结算单仓储。
@@ -77,4 +78,37 @@ func (r *SettlementOrderRepository) Count() (int64, error) {
 	var count int64
 	err := r.db.Model(&model.SettlementOrder{}).Count(&count).Error
 	return count, err
+}
+
+// FindByID 按主键查询结算单。
+func (r *SettlementOrderRepository) FindByID(id uint) (*model.SettlementOrder, error) {
+	var order model.SettlementOrder
+	if err := r.db.Where("id = ?", id).First(&order).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, util.ErrNotFound
+		}
+		return nil, err
+	}
+	return &order, nil
+}
+
+// FindByIDForUpdate 按主键查询结算单并加行锁（事务内调用；PostgreSQL 生效，SQLite 为 no-op）。
+func (r *SettlementOrderRepository) FindByIDForUpdate(tx *gorm.DB, id uint) (*model.SettlementOrder, error) {
+	var order model.SettlementOrder
+	q := tx.Where("id = ?", id)
+	if r.db.Dialector.Name() == "postgres" {
+		q = q.Clauses(clause.Locking{Strength: "UPDATE"})
+	}
+	if err := q.First(&order).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, util.ErrNotFound
+		}
+		return nil, err
+	}
+	return &order, nil
+}
+
+// UpdateWithTx 在给定事务内更新结算单。
+func (r *SettlementOrderRepository) UpdateWithTx(tx *gorm.DB, order *model.SettlementOrder) error {
+	return tx.Save(order).Error
 }

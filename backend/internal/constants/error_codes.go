@@ -20,4 +20,10 @@ const (
 	CodeSettleInvalid    = 1402
 	CodeReverseNotToday  = 1403
 	CodeReverseAlready   = 1404
+	CodeAdjustmentTargetInvalid = 1410
+	CodeAdjustmentExists        = 1411
+	CodeAdjustmentNotFound      = 1412
+	CodeAdjustmentStateInvalid  = 1413
+	CodeAdjustmentOrderState    = 1414
+	CodeAdjustmentReviewInvalid = 1415
 )

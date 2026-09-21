@@ -17,6 +17,17 @@ definitions:
     required:
     - batch_id
     type: object
+  github_com_blueship581_gbinsureapi_internal_dto.CreateAdjustmentRequest:
+    properties:
+      reason:
+        maxLength: 500
+        minLength: 1
+        type: string
+      target_insurance_pay:
+        type: number
+    required:
+    - reason
+    type: object
   github_com_blueship581_gbinsureapi_internal_dto.CreateClientRequest:
     properties:
       client_type:
@@ -73,6 +84,14 @@ definitions:
     - item_name
     - item_type
     - medical_category
+    type: object
+  github_com_blueship581_gbinsureapi_internal_dto.ReviewAdjustmentRequest:
+    properties:
+      approve:
+        type: boolean
+      review_remark:
+        maxLength: 500
+        type: string
     type: object
   github_com_blueship581_gbinsureapi_internal_dto.SubmitSettlementRequest:
     properties:
@@ -510,6 +529,54 @@ paths:
       summary: 结算单详情
       tags:
       - settlements
+  /api/v1/settlements/{settlement_no}/adjustments:
+    get:
+      parameters:
+      - description: 结算单号
+        in: path
+        name: settlement_no
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 结算单差额补退列表
+      tags:
+      - settlements
+    post:
+      consumes:
+      - application/json
+      description: 已结算订单提交目标医保支付额与原因，生成待复核差额单；同一订单只允许一条待复核记录
+      parameters:
+      - description: 结算单号
+        in: path
+        name: settlement_no
+        required: true
+        type: string
+      - description: 目标医保支付额与原因
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.CreateAdjustmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 差额补退提交
+      tags:
+      - settlements
   /api/v1/settlements/{settlement_no}/reverse:
     post:
       description: 结算当日全额回退
@@ -528,6 +595,55 @@ paths:
       - ApiKeyAuth: []
       - BearerAuth: []
       summary: 结算冲正
+      tags:
+      - settlements
+  /api/v1/settlements/adjustments/{adjustment_no}:
+    get:
+      parameters:
+      - description: 差额补退单号
+        in: path
+        name: adjustment_no
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 差额补退单详情
+      tags:
+      - settlements
+  /api/v1/settlements/adjustments/{adjustment_no}/review:
+    post:
+      consumes:
+      - application/json
+      description: 复核通过订单标记已补退并生成负向记录冲减差额；驳回保留原因且可再次申请；并发复核只能成功一次
+      parameters:
+      - description: 差额补退单号
+        in: path
+        name: adjustment_no
+        required: true
+        type: string
+      - description: 复核结论
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.ReviewAdjustmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 差额补退复核
       tags:
       - settlements
   /api/v1/settlements/submit:

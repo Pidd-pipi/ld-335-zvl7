@@ -10,3 +10,5 @@ func (Presettlement) TableName() string          { return "presettlements" }
 func (SettlementOrder) TableName() string        { return "settlement_orders" }
 func (DailyReconciliation) TableName() string    { return "daily_reconciliations" }
 func (AuditLog) TableName() string               { return "audit_logs" }
+func (SettlementAdjustment) TableName() string   { return "settlement_adjustments" }
+func (AdjustmentLedger) TableName() string       { return "adjustment_ledgers" }

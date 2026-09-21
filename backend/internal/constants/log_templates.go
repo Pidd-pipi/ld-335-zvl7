@@ -33,4 +33,12 @@ const (
 	LOG_PANIC_RECOVERED            = "panic recovered"
 	LOG_BATCH_NO_GENERATED         = "UploadBatch batch_no generated"
 	LOG_SETTLEMENT_NO_GENERATED    = "SettlementOrder settlement_no generated"
+	LOG_ADJUSTMENT_SUBMIT_START    = "SettlementAdjustment submit start"
+	LOG_ADJUSTMENT_SUBMITTED       = "SettlementAdjustment submitted"
+	LOG_ADJUSTMENT_SUBMIT_FAILED   = "SettlementAdjustment submit failed"
+	LOG_ADJUSTMENT_REVIEW_APPROVED = "SettlementAdjustment approved"
+	LOG_ADJUSTMENT_REVIEW_REJECTED = "SettlementAdjustment rejected"
+	LOG_ADJUSTMENT_REVIEW_FAILED   = "SettlementAdjustment review failed"
+	LOG_ADJUSTMENT_LEDGER_WRITTEN  = "AdjustmentLedger negative record written"
+	LOG_ADJUSTMENT_NO_GENERATED    = "SettlementAdjustment adjustment_no generated"
 )

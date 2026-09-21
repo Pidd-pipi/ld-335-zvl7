@@ -20,11 +20,19 @@ func newTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
+	// 内存库使用单一连接，确保 FOR UPDATE / 事务测试在同一连接上可见。
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxOpenConns(1)
 	if err := db.AutoMigrate(
 		&model.ApiClient{}, &model.InsuredPerson{}, &model.UploadBatch{}, &model.FeeItem{},
 		&model.Presettlement{}, &model.SettlementOrder{}, &model.DailyReconciliation{}, &model.AuditLog{},
+		&model.SettlementAdjustment{}, &model.AdjustmentLedger{},
 	); err != nil {
 		t.Fatalf("migrate: %v", err)
+	}
+	if err := db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_adjustment_order_pending
+		ON settlement_adjustments(settlement_order_id) WHERE status = 'pending_review'`).Error; err != nil {
+		t.Fatalf("create partial index: %v", err)
 	}
 	return db
 }

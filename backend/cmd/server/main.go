@@ -59,6 +59,8 @@ func main() {
 	feeRepo := repository.NewFeeItemRepository(db)
 	presetRepo := repository.NewPresettlementRepository(db)
 	orderRepo := repository.NewSettlementOrderRepository(db)
+	adjustmentRepo := repository.NewSettlementAdjustmentRepository(db)
+	ledgerRepo := repository.NewAdjustmentLedgerRepository(db)
 	recRepo := repository.NewDailyReconciliationRepository(db)
 	auditRepo := repository.NewAuditLogRepository(db)
 
@@ -67,6 +69,7 @@ func main() {
 	insuranceSvc := service.NewInsuranceService(insuredRepo, log)
 	feeSvc := service.NewFeeService(batchRepo, feeRepo, insuranceSvc, log)
 	settlementSvc := service.NewSettlementService(presetRepo, orderRepo, feeRepo, batchRepo, insuranceSvc, calculator, log)
+	adjustmentSvc := service.NewAdjustmentService(db, orderRepo, adjustmentRepo, ledgerRepo, log)
 	reconSvc := service.NewReconciliationService(orderRepo, recRepo, log)
 
 	h := router.Handlers{
@@ -77,6 +80,7 @@ func main() {
 		FeeItem:       handler.NewFeeItemHandler(feeSvc, log),
 		Presettlement: handler.NewPresettlementHandler(settlementSvc, log),
 		Settlement:    handler.NewSettlementOrderHandler(settlementSvc, log),
+		Adjustment:    handler.NewSettlementAdjustmentHandler(adjustmentSvc, log),
 		Recon:         handler.NewDailyReconciliationHandler(reconSvc, log),
 	}
 	r := router.New(cfg, log, h, clientSvc, auditRepo, middleware.NewRateLimiter())
@@ -108,12 +112,18 @@ func migrateAndSeed(db *gorm.DB, cfg config.Config, log *slog.Logger) error {
 	}
 	if tableCount > 0 {
 		// init.sql 已建表：修复种子调用方的 API Key 哈希（与当前 API_KEY_SECRET 一致）
+		if err := ensureAdjustmentSchema(db); err != nil {
+			return err
+		}
 		return syncDemoClientHashes(db, cfg)
 	}
 	if err := db.AutoMigrate(
 		&model.ApiClient{}, &model.InsuredPerson{}, &model.UploadBatch{}, &model.FeeItem{},
 		&model.Presettlement{}, &model.SettlementOrder{}, &model.DailyReconciliation{}, &model.AuditLog{},
 	); err != nil {
+		return err
+	}
+	if err := ensureAdjustmentSchema(db); err != nil {
 		return err
 	}
 	// 种子调用方（管理端演示）
@@ -136,6 +146,16 @@ func migrateAndSeed(db *gorm.DB, cfg config.Config, log *slog.Logger) error {
 	}
 	log.Info(constants.LOG_DB_INITIALIZED, "seed", "ok")
 	return syncDemoClientHashes(db, cfg)
+}
+
+// ensureAdjustmentSchema 确保差额补退相关表存在，并建立"同一订单仅一条待复核记录"的部分唯一索引。
+// 该约束同时兼容 PostgreSQL 与 SQLite，作为并发提交的数据库兜底（service 层已先做应用层预检）。
+func ensureAdjustmentSchema(db *gorm.DB) error {
+	if err := db.AutoMigrate(&model.SettlementAdjustment{}, &model.AdjustmentLedger{}); err != nil {
+		return err
+	}
+	return db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_adjustment_order_pending
+		ON settlement_adjustments(settlement_order_id) WHERE status = 'pending_review'`).Error
 }
 
 // syncDemoClientHashes 确保演示调用方使用当前 API_KEY_SECRET 生成的哈希（init.sql 占位哈希不匹配）。

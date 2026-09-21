@@ -608,6 +608,88 @@
                 }
             }
         },
+        "/api/v1/settlements/adjustments/{adjustment_no}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "settlements"
+                ],
+                "summary": "差额补退单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "差额补退单号",
+                        "name": "adjustment_no",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/settlements/adjustments/{adjustment_no}/review": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "复核通过订单标记已补退并生成负向记录冲减差额；驳回保留原因且可再次申请；并发复核只能成功一次",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settlements"
+                ],
+                "summary": "差额补退复核",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "差额补退单号",
+                        "name": "adjustment_no",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "复核结论",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.ReviewAdjustmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/settlements/submit": {
             "post": {
                 "security": [
@@ -683,6 +765,86 @@
                 }
             }
         },
+        "/api/v1/settlements/{settlement_no}/adjustments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "settlements"
+                ],
+                "summary": "结算单差额补退列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算单号",
+                        "name": "settlement_no",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "已结算订单提交目标医保支付额与原因，生成待复核差额单；同一订单只允许一条待复核记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settlements"
+                ],
+                "summary": "差额补退提交",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算单号",
+                        "name": "settlement_no",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "目标医保支付额与原因",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.CreateAdjustmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/settlements/{settlement_no}/reverse": {
             "post": {
                 "security": [
@@ -742,6 +904,22 @@
             "properties": {
                 "batch_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "github_com_blueship581_gbinsureapi_internal_dto.CreateAdjustmentRequest": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "target_insurance_pay": {
+                    "type": "number"
                 }
             }
         },
@@ -819,6 +997,18 @@
                 "unit_price": {
                     "type": "number",
                     "minimum": 0
+                }
+            }
+        },
+        "github_com_blueship581_gbinsureapi_internal_dto.ReviewAdjustmentRequest": {
+            "type": "object",
+            "properties": {
+                "approve": {
+                    "type": "boolean"
+                },
+                "review_remark": {
+                    "type": "string",
+                    "maxLength": 500
                 }
             }
         },

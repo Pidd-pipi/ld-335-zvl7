@@ -80,6 +80,43 @@ CREATE TABLE IF NOT EXISTS settlement_orders (
 );
 CREATE INDEX IF NOT EXISTS idx_order_client ON settlement_orders(client_id, status);
 
+CREATE TABLE IF NOT EXISTS settlement_adjustments (
+    id BIGSERIAL PRIMARY KEY,
+    adjustment_no VARCHAR(32) UNIQUE NOT NULL,
+    settlement_order_id BIGINT NOT NULL,
+    settlement_no VARCHAR(32) NOT NULL,
+    client_id BIGINT NOT NULL,
+    original_insurance_pay DOUBLE PRECISION DEFAULT 0,
+    target_insurance_pay DOUBLE PRECISION DEFAULT 0,
+    difference_amount DOUBLE PRECISION DEFAULT 0,
+    reason VARCHAR(500) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending_review' NOT NULL,
+    review_remark VARCHAR(500) DEFAULT '',
+    reviewer_client_id BIGINT DEFAULT 0,
+    reviewed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+-- 同一结算订单只允许一条待复核（pending_review）差额单
+CREATE UNIQUE INDEX IF NOT EXISTS idx_adjustment_order_pending
+    ON settlement_adjustments(settlement_order_id) WHERE status = 'pending_review';
+CREATE INDEX IF NOT EXISTS idx_adjustment_order ON settlement_adjustments(settlement_no, status);
+
+CREATE TABLE IF NOT EXISTS adjustment_ledgers (
+    id BIGSERIAL PRIMARY KEY,
+    adjustment_id BIGINT UNIQUE NOT NULL,
+    adjustment_no VARCHAR(32) NOT NULL,
+    settlement_order_id BIGINT NOT NULL,
+    settlement_no VARCHAR(32) NOT NULL,
+    direction VARCHAR(10) NOT NULL,
+    amount DOUBLE PRECISION DEFAULT 0,
+    original_insurance_pay DOUBLE PRECISION DEFAULT 0,
+    target_insurance_pay DOUBLE PRECISION DEFAULT 0,
+    note VARCHAR(200) DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_ledger_order ON adjustment_ledgers(settlement_no);
+CREATE INDEX IF NOT EXISTS idx_ledger_adjustment ON adjustment_ledgers(adjustment_no);
+
 CREATE TABLE IF NOT EXISTS daily_reconciliations (
     id BIGSERIAL PRIMARY KEY,
     reconcile_date VARCHAR(10) UNIQUE NOT NULL,

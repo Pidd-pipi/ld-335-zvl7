@@ -70,9 +70,9 @@ ld-335/
     ├── docs/                 # swag 生成的 OpenAPI 文档
     └── internal/
         ├── config/           # 环境变量解析
-        ├── model/            # api_client/insured_person/upload_batch/fee_item/presettlement/settlement_order/daily_reconciliation/audit_log
+        ├── model/            # api_client/insured_person/upload_batch/fee_item/presettlement/settlement_order/settlement_adjustment/adjustment_ledger/daily_reconciliation/audit_log
         ├── repository/       # 按实体分文件
-        ├── service/          # api_client/insurance/fee/settlement/reconciliation
+        ├── service/          # api_client/insurance/fee/settlement/adjustment/reconciliation
         ├── handler/          # 按实体分文件（含 swagger 注解）
         ├── router/           # router.go + 按实体分文件
         ├── middleware/       # auth/api_key/rate_limiter/error_handler/audit_log/request_logger
@@ -116,6 +116,10 @@ ld-335/
 | GET | `/api/v1/presettlements` | X-API-Key + JWT | 批次预结算记录 |
 | POST | `/api/v1/settlements/submit` | X-API-Key + JWT | 正式结算提交 |
 | POST | `/api/v1/settlements/:settlement_no/reverse` | X-API-Key + JWT | 结算冲正 |
+| POST | `/api/v1/settlements/:settlement_no/adjustments` | X-API-Key + JWT | 差额补退提交（生成待复核差额单） |
+| POST | `/api/v1/settlements/adjustments/:adjustment_no/review` | X-API-Key + JWT | 差额补退复核（通过/驳回） |
+| GET | `/api/v1/settlements/:settlement_no/adjustments` | X-API-Key + JWT | 结算单差额补退记录查询 |
+| GET | `/api/v1/settlements/adjustments/:adjustment_no` | X-API-Key + JWT | 差额补退单详情（含负向账目） |
 | GET | `/api/v1/settlements` | X-API-Key + JWT | 结算单列表 |
 | GET | `/api/v1/settlements/:settlement_no` | X-API-Key + JWT | 结算单详情 |
 | GET | `/api/v1/reconciliations/daily` | X-API-Key + JWT | 日终对账 |
@@ -163,9 +167,37 @@ curl -s -X POST $BASE/api/v1/settlements/submit -H "X-API-Key: $API_KEY" -H "Aut
 curl -s -X POST $BASE/api/v1/settlements/{SETTLEMENT_NO}/reverse \
   -H "X-API-Key: $API_KEY" -H "Authorization: Bearer $SVC_TOKEN"
 
-# 9. 日终对账
+# 9. 差额补退提交：目标医保支付额必须 ≥ 0 且 < 原医保支付额（同一结算单仅允许一条待复核）
+curl -s -X POST $BASE/api/v1/settlements/{SETTLEMENT_NO}/adjustments \
+  -H "X-API-Key: $API_KEY" -H "Authorization: Bearer $SVC_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"target_insurance_pay":300.00,"reason":"医保局核定医保支付下调"}'
+
+# 10. 差额补退复核（approve=true 通过：订单标记已补退并生成负向账目；false 驳回须填 review_remark）
+curl -s -X POST $BASE/api/v1/settlements/adjustments/{ADJUSTMENT_NO}/review \
+  -H "X-API-Key: $API_KEY" -H "Authorization: Bearer $SVC_TOKEN" \
+  -H 'Content-Type: application/json' -d '{"approve":true,"review_remark":"核定无误"}'
+
+# 11. 差额补退查询回读（详情含负向账目 ledger；列表按结算单查询）
+curl -s $BASE/api/v1/settlements/adjustments/{ADJUSTMENT_NO} \
+  -H "X-API-Key: $API_KEY" -H "Authorization: Bearer $SVC_TOKEN"
+curl -s $BASE/api/v1/settlements/{SETTLEMENT_NO}/adjustments \
+  -H "X-API-Key: $API_KEY" -H "Authorization: Bearer $SVC_TOKEN"
+
+# 12. 日终对账
 curl -s "$BASE/api/v1/reconciliations/daily?client_id=1" -H "X-API-Key: $API_KEY" -H "Authorization: Bearer $SVC_TOKEN"
 ```
+
+## 结算差额补退（补退流程说明）
+
+对**已结算（settled）**订单，医院可按医保局核定结果提交目标医保支付额，发起差额补退：
+
+1. **提交**：`POST /api/v1/settlements/:settlement_no/adjustments`，提交 `target_insurance_pay`（目标医保支付额）与 `reason`（原因）。目标金额 **小于零** 或 **不小于原医保支付额** 时拒绝；同一结算单只允许一条 `pending_review` 待复核记录（应用层预检 + 数据库部分唯一索引 `idx_adjustment_order_pending` 双重保证）。
+2. **复核**：`POST /api/v1/settlements/adjustments/:adjustment_no/review`
+   - `approve=true`：在一个数据库事务内对差额单与订单加行锁并二次校验状态，通过后订单置为 `adjusted`（已补退），同时生成一条**负向账目**（`adjustment_ledgers`，金额 = 目标 − 原支付，恒为负）冲减差额。
+   - `approve=false`：差额单置为 `rejected`，**必须**携带 `review_remark`，保留申请原因，不改动订单与账目；驳回后可对同一订单再次申请。
+3. **并发安全**：并发复核借助 `SELECT ... FOR UPDATE`（PostgreSQL）+ 状态二次校验串行化，保证只成功一次；重复提交、订单状态不符（非 `settled`）或重复复核全部返回 `409`，失败时事务回滚，**订单与账目不发生任何改动**。
+4. **查询回读**：提交、复核结果与负向账目均可通过详情/列表接口回读；状态全部落库，服务重启后一致。
 
 ## Docker 部署说明
 
@@ -192,16 +224,32 @@ curl -s "$BASE/api/v1/reconciliations/daily?client_id=1" -H "X-API-Key: $API_KEY
 - `backend/internal/dto/fee_dto.go`（DTO 校验 tag）
 - `backend/internal/handler/fee_item_handler.go`（上传接口）
 
-### SettlementStatus（结算状态：presettled/settled/reversed/failed/pending_manual）
+### SettlementStatus（结算状态：presettled/settled/reversed/failed/pending_manual/adjusted）
 
-- `backend/internal/constants/settlement.go`（定义）
+- `backend/internal/constants/settlement.go`（定义，含差额补退新增的 `adjusted=已补退`）
 - `backend/internal/model/settlement_order.go`（模型）
 - `backend/internal/service/settlement_service.go`（状态机：提交→settled、冲正→reversed）
+- `backend/internal/service/adjustment_service.go`（差额补退状态机：复核通过 settled→adjusted）
 - `backend/internal/service/reconciliation_service.go`（对账统计分支）
-- `backend/internal/util/formatters.go`（中文文案）
+- `backend/internal/util/formatters.go`（中文文案，含 SettlementStatusText/AdjustmentStatusText）
 - `backend/internal/constants/log_templates.go`（日志模板）
 - `backend/internal/constants/error_codes.go`（错误码）
-- `backend/internal/repository/settlement_order_repository.go`（按状态查询）
+- `backend/internal/repository/settlement_order_repository.go`（按状态查询、行锁复核）
+- `backend/internal/repository/settlement_adjustment_repository.go`（差额单状态与部分唯一索引）
+- `backend/internal/model/settlement_adjustment.go` / `backend/internal/model/adjustment_ledger.go`（补退单与负向账目）
+
+### AdjustmentStatus（差额补退单状态：pending_review/approved/rejected）
+
+- `backend/internal/constants/settlement.go`（定义）
+- `backend/internal/model/settlement_adjustment.go`（模型）
+- `backend/internal/service/adjustment_service.go`（提交→pending_review、复核→approved/rejected 状态机）
+- `backend/internal/repository/settlement_adjustment_repository.go`（按状态查询、待复核部分唯一索引、行锁）
+- `backend/internal/util/formatters.go`（AdjustmentStatusText 中文文案）
+- `backend/internal/constants/log_templates.go`（日志模板）
+- `backend/internal/constants/error_codes.go`（错误码）
+- `backend/internal/constants/messages.go`（返回文案）
+- `backend/internal/dto/settlement_dto.go`（提交/复核 DTO）
+- `backend/internal/handler/settlement_adjustment_handler.go`（提交/复核/查询接口）
 
 ### InsuranceType（医保类型：employee/resident/new_rural）
 
