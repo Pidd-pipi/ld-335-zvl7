@@ -20,11 +20,21 @@ func newTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
+	// 内存 SQLite 的每个连接各自持有独立内存库，固定单连接以共享建表结果并串行化写事务。
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("get sql db: %v", err)
+	}
+	sqlDB.SetMaxOpenConns(1)
 	if err := db.AutoMigrate(
 		&model.ApiClient{}, &model.InsuredPerson{}, &model.UploadBatch{}, &model.FeeItem{},
 		&model.Presettlement{}, &model.SettlementOrder{}, &model.DailyReconciliation{}, &model.AuditLog{},
+		&model.SettlementAdjustment{}, &model.SettlementAccountEntry{},
 	); err != nil {
 		t.Fatalf("migrate: %v", err)
+	}
+	if err := db.Exec(model.PendingOrderUniqueIndexSQL).Error; err != nil {
+		t.Fatalf("create pending index: %v", err)
 	}
 	return db
 }

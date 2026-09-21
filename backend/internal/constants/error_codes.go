@@ -20,4 +20,9 @@ const (
 	CodeSettleInvalid    = 1402
 	CodeReverseNotToday  = 1403
 	CodeReverseAlready   = 1404
+	CodeAdjustNotFound   = 1501 // 差额补退单不存在
+	CodeAdjustNotPending = 1502 // 差额补退单非待复核状态
+	CodeAdjustExists     = 1503 // 同一结算单已存在待复核差额单
+	CodeAdjustOrderState = 1504 // 结算单状态不允许补退
+	CodeAdjustAmount     = 1505 // 目标医保支付额不合法
 )

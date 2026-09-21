@@ -38,7 +38,7 @@ func (s *ReconciliationService) Daily(ctx context.Context, clientID uint) (*mode
 	for _, o := range orders {
 		totalAmount += o.TotalAmount
 		switch o.Status {
-		case constants.SettlementSettled:
+		case constants.SettlementSettled, constants.SettlementAdjusted:
 			success++
 		case constants.SettlementFailed:
 			fail++

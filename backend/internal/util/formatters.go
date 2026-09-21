@@ -26,6 +26,22 @@ func SettlementStatusText(status string) string {
 		return "失败"
 	case "pending_manual":
 		return "待人工处理"
+	case "adjusted":
+		return "已补退"
+	default:
+		return "未知"
+	}
+}
+
+// AdjustmentStatusText 差额补退单状态中文文案。
+func AdjustmentStatusText(status string) string {
+	switch status {
+	case "pending_review":
+		return "待复核"
+	case "approved":
+		return "已补退"
+	case "rejected":
+		return "已驳回"
 	default:
 		return "未知"
 	}

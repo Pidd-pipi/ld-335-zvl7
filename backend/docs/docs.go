@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.AdminLoginRequest"
+                            "$ref": "#/definitions/dto.AdminLoginRequest"
                         }
                     }
                 ],
@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -87,7 +87,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -120,7 +120,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -155,7 +155,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -184,7 +184,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.CreateClientRequest"
+                            "$ref": "#/definitions/dto.CreateClientRequest"
                         }
                     }
                 ],
@@ -192,7 +192,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -224,7 +224,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -258,7 +258,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.VerifyRequest"
+                            "$ref": "#/definitions/dto.VerifyRequest"
                         }
                     }
                 ],
@@ -266,7 +266,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -297,7 +297,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.UpdateClientStatusRequest"
+                            "$ref": "#/definitions/dto.UpdateClientStatusRequest"
                         }
                     }
                 ],
@@ -305,7 +305,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -338,7 +338,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -372,7 +372,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.UploadFeesRequest"
+                            "$ref": "#/definitions/dto.UploadFeesRequest"
                         }
                     }
                 ],
@@ -380,7 +380,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -418,7 +418,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -451,7 +451,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -485,7 +485,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.CalculatePresettlementRequest"
+                            "$ref": "#/definitions/dto.CalculatePresettlementRequest"
                         }
                     }
                 ],
@@ -493,7 +493,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -531,7 +531,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -564,7 +564,139 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/settlement-adjustments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "settlement-adjustments"
+                ],
+                "summary": "差额补退单列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "调用方 ID",
+                        "name": "client_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态(pending_review/approved/rejected)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/settlement-adjustments/{adjustment_no}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "settlement-adjustments"
+                ],
+                "summary": "差额补退单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "差额补退单号",
+                        "name": "adjustment_no",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/settlement-adjustments/{adjustment_no}/review": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "复核通过后订单标记已补退并生成负向记录冲减差额；驳回保留原因且可再次申请；重复/并发复核只成功一次",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settlement-adjustments"
+                ],
+                "summary": "差额补退复核",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "差额补退单号",
+                        "name": "adjustment_no",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "复核结论（approved + reason）",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReviewAdjustmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -608,7 +740,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -642,7 +774,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.SubmitSettlementRequest"
+                            "$ref": "#/definitions/dto.SubmitSettlementRequest"
                         }
                     }
                 ],
@@ -650,7 +782,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -683,7 +815,87 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/settlements/{settlement_no}/adjustments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "settlement-adjustments"
+                ],
+                "summary": "结算单差额补退记录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算单号",
+                        "name": "settlement_no",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "已结算订单提交目标医保支付额与原因后生成待复核差额单；同一订单只允许一条待复核记录，目标金额小于零或不小于原支付额时拒绝",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settlement-adjustments"
+                ],
+                "summary": "结算差额补退申请",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结算单号",
+                        "name": "settlement_no",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "目标医保支付额与原因",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateAdjustmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -717,7 +929,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response"
+                            "$ref": "#/definitions/util.Response"
                         }
                     }
                 }
@@ -725,7 +937,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_blueship581_gbinsureapi_internal_dto.AdminLoginRequest": {
+        "dto.AdminLoginRequest": {
             "type": "object",
             "required": [
                 "password",
@@ -740,7 +952,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.CalculatePresettlementRequest": {
+        "dto.CalculatePresettlementRequest": {
             "type": "object",
             "required": [
                 "batch_id"
@@ -751,7 +963,23 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.CreateClientRequest": {
+        "dto.CreateAdjustmentRequest": {
+            "type": "object",
+            "required": [
+                "reason",
+                "target_pay_amount"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "target_pay_amount": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.CreateClientRequest": {
             "type": "object",
             "required": [
                 "client_type",
@@ -780,7 +1008,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.FeeItemDTO": {
+        "dto.FeeItemDTO": {
             "type": "object",
             "required": [
                 "item_code",
@@ -828,7 +1056,19 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.SubmitSettlementRequest": {
+        "dto.ReviewAdjustmentRequest": {
+            "type": "object",
+            "properties": {
+                "approved": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                }
+            }
+        },
+        "dto.SubmitSettlementRequest": {
             "type": "object",
             "required": [
                 "presettlement_id"
@@ -839,7 +1079,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.UpdateClientStatusRequest": {
+        "dto.UpdateClientStatusRequest": {
             "type": "object",
             "required": [
                 "status"
@@ -854,7 +1094,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.UploadFeesRequest": {
+        "dto.UploadFeesRequest": {
             "type": "object",
             "required": [
                 "client_id",
@@ -872,12 +1112,12 @@ const docTemplate = `{
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/github_com_blueship581_gbinsureapi_internal_dto.FeeItemDTO"
+                        "$ref": "#/definitions/dto.FeeItemDTO"
                     }
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_dto.VerifyRequest": {
+        "dto.VerifyRequest": {
             "type": "object",
             "required": [
                 "id_card_no",
@@ -892,7 +1132,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_blueship581_gbinsureapi_internal_util.Response": {
+        "util.Response": {
             "type": "object",
             "properties": {
                 "code": {

@@ -59,6 +59,8 @@ func main() {
 	feeRepo := repository.NewFeeItemRepository(db)
 	presetRepo := repository.NewPresettlementRepository(db)
 	orderRepo := repository.NewSettlementOrderRepository(db)
+	adjustRepo := repository.NewSettlementAdjustmentRepository(db)
+	entryRepo := repository.NewSettlementAccountEntryRepository(db)
 	recRepo := repository.NewDailyReconciliationRepository(db)
 	auditRepo := repository.NewAuditLogRepository(db)
 
@@ -67,6 +69,7 @@ func main() {
 	insuranceSvc := service.NewInsuranceService(insuredRepo, log)
 	feeSvc := service.NewFeeService(batchRepo, feeRepo, insuranceSvc, log)
 	settlementSvc := service.NewSettlementService(presetRepo, orderRepo, feeRepo, batchRepo, insuranceSvc, calculator, log)
+	adjustmentSvc := service.NewSettlementAdjustmentService(db, orderRepo, adjustRepo, entryRepo, log)
 	reconSvc := service.NewReconciliationService(orderRepo, recRepo, log)
 
 	h := router.Handlers{
@@ -77,6 +80,7 @@ func main() {
 		FeeItem:       handler.NewFeeItemHandler(feeSvc, log),
 		Presettlement: handler.NewPresettlementHandler(settlementSvc, log),
 		Settlement:    handler.NewSettlementOrderHandler(settlementSvc, log),
+		Adjustment:    handler.NewSettlementAdjustmentHandler(adjustmentSvc, log),
 		Recon:         handler.NewDailyReconciliationHandler(reconSvc, log),
 	}
 	r := router.New(cfg, log, h, clientSvc, auditRepo, middleware.NewRateLimiter())
@@ -107,13 +111,27 @@ func migrateAndSeed(db *gorm.DB, cfg config.Config, log *slog.Logger) error {
 		return err
 	}
 	if tableCount > 0 {
+		// init.sql 已建表：补建差额补退相关表（旧版本库升级）并修复种子调用方的 API Key 哈希
+		if err := db.AutoMigrate(
+			&model.SettlementAdjustment{}, &model.SettlementAccountEntry{},
+		); err != nil {
+			return err
+		}
+		if err := db.Exec(model.PendingOrderUniqueIndexSQL).Error; err != nil {
+			return err
+		}
 		// init.sql 已建表：修复种子调用方的 API Key 哈希（与当前 API_KEY_SECRET 一致）
 		return syncDemoClientHashes(db, cfg)
 	}
 	if err := db.AutoMigrate(
 		&model.ApiClient{}, &model.InsuredPerson{}, &model.UploadBatch{}, &model.FeeItem{},
 		&model.Presettlement{}, &model.SettlementOrder{}, &model.DailyReconciliation{}, &model.AuditLog{},
+		&model.SettlementAdjustment{}, &model.SettlementAccountEntry{},
 	); err != nil {
+		return err
+	}
+	// 同一结算单仅允许一条待复核差额单的部分唯一索引（PostgreSQL/SQLite 均支持）
+	if err := db.Exec(model.PendingOrderUniqueIndexSQL).Error; err != nil {
 		return err
 	}
 	// 种子调用方（管理端演示）
@@ -141,8 +159,8 @@ func migrateAndSeed(db *gorm.DB, cfg config.Config, log *slog.Logger) error {
 // syncDemoClientHashes 确保演示调用方使用当前 API_KEY_SECRET 生成的哈希（init.sql 占位哈希不匹配）。
 func syncDemoClientHashes(db *gorm.DB, cfg config.Config) error {
 	demo := []struct {
-		name  string
-		key   string
+		name string
+		key  string
 	}{
 		{name: "演示医院 HIS", key: "ak_demo_his"},
 		{name: "第三方药房", key: "ak_demo_third"},

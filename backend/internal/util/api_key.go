@@ -39,3 +39,13 @@ func BatchNo(seq int64) string {
 func SettlementNo(seq int64) string {
 	return fmt.Sprintf("S%s%06d", timeNowDate(), seq)
 }
+
+// AdjustmentNo 生成差额补退单号（A + 日期 + 序号）。
+func AdjustmentNo(seq int64) string {
+	return fmt.Sprintf("A%s%06d", timeNowDate(), seq)
+}
+
+// AccountEntryNo 生成账目流水号（E + 日期 + 序号）。
+func AccountEntryNo(seq int64) string {
+	return fmt.Sprintf("E%s%06d", timeNowDate(), seq)
+}

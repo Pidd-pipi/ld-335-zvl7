@@ -8,5 +8,7 @@ func (UploadBatch) TableName() string            { return "upload_batches" }
 func (FeeItem) TableName() string                { return "fee_items" }
 func (Presettlement) TableName() string          { return "presettlements" }
 func (SettlementOrder) TableName() string        { return "settlement_orders" }
+func (SettlementAdjustment) TableName() string   { return "settlement_adjustments" }
+func (SettlementAccountEntry) TableName() string { return "settlement_account_entries" }
 func (DailyReconciliation) TableName() string    { return "daily_reconciliations" }
 func (AuditLog) TableName() string               { return "audit_logs" }

@@ -24,6 +24,7 @@ type Handlers struct {
 	FeeItem       *handler.FeeItemHandler
 	Presettlement *handler.PresettlementHandler
 	Settlement    *handler.SettlementOrderHandler
+	Adjustment    *handler.SettlementAdjustmentHandler
 	Recon         *handler.DailyReconciliationHandler
 }
 
@@ -86,6 +87,12 @@ func New(cfg config.Config, log *slog.Logger, h Handlers, clientSvc *service.Api
 		biz.POST("/settlements/:settlement_no/reverse", h.Settlement.Reverse)
 		biz.GET("/settlements", h.Settlement.List)
 		biz.GET("/settlements/:settlement_no", h.Settlement.Detail)
+		// 结算差额补退：申请、复核、查询
+		biz.POST("/settlements/:settlement_no/adjustments", h.Adjustment.Apply)
+		biz.GET("/settlements/:settlement_no/adjustments", h.Adjustment.ListByOrder)
+		biz.POST("/settlement-adjustments/:adjustment_no/review", h.Adjustment.Review)
+		biz.GET("/settlement-adjustments/:adjustment_no", h.Adjustment.Detail)
+		biz.GET("/settlement-adjustments", h.Adjustment.List)
 		biz.GET("/reconciliations/daily", h.Recon.Daily)
 		biz.GET("/reconciliations", h.Recon.List)
 	}

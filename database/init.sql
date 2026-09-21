@@ -80,6 +80,47 @@ CREATE TABLE IF NOT EXISTS settlement_orders (
 );
 CREATE INDEX IF NOT EXISTS idx_order_client ON settlement_orders(client_id, status);
 
+-- 结算差额补退单：已结算订单提交目标医保支付额后生成待复核记录
+CREATE TABLE IF NOT EXISTS settlement_adjustments (
+    id BIGSERIAL PRIMARY KEY,
+    adjustment_no VARCHAR(32) UNIQUE NOT NULL,
+    settlement_order_id BIGINT NOT NULL,
+    settlement_no VARCHAR(32) NOT NULL,
+    client_id BIGINT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending_review' NOT NULL,
+    original_pay_amount DOUBLE PRECISION NOT NULL DEFAULT 0,
+    target_pay_amount DOUBLE PRECISION NOT NULL DEFAULT 0,
+    difference_amount DOUBLE PRECISION NOT NULL DEFAULT 0,
+    apply_reason VARCHAR(500) NOT NULL DEFAULT '',
+    reject_reason VARCHAR(500) DEFAULT '',
+    reviewed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_adjust_order ON settlement_adjustments(settlement_order_id);
+CREATE INDEX IF NOT EXISTS idx_adjust_client ON settlement_adjustments(client_id, status);
+-- 同一结算单只允许一条待复核差额单（驳回后原记录保留，允许再次申请）
+CREATE UNIQUE INDEX IF NOT EXISTS idx_adjust_pending_order
+    ON settlement_adjustments (settlement_order_id) WHERE status = 'pending_review';
+
+-- 结算账目流水：复核通过后生成负向记录冲减差额
+CREATE TABLE IF NOT EXISTS settlement_account_entries (
+    id BIGSERIAL PRIMARY KEY,
+    entry_no VARCHAR(32) UNIQUE NOT NULL,
+    settlement_order_id BIGINT NOT NULL,
+    settlement_no VARCHAR(32) NOT NULL,
+    adjustment_id BIGINT NOT NULL,
+    adjustment_no VARCHAR(32) NOT NULL,
+    client_id BIGINT NOT NULL,
+    direction VARCHAR(10) NOT NULL,
+    amount DOUBLE PRECISION NOT NULL DEFAULT 0,
+    reason VARCHAR(500) DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_entry_order ON settlement_account_entries(settlement_order_id);
+CREATE INDEX IF NOT EXISTS idx_entry_adjust ON settlement_account_entries(adjustment_id);
+CREATE INDEX IF NOT EXISTS idx_entry_client ON settlement_account_entries(client_id);
+
 CREATE TABLE IF NOT EXISTS daily_reconciliations (
     id BIGSERIAL PRIMARY KEY,
     reconcile_date VARCHAR(10) UNIQUE NOT NULL,

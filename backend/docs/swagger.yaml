@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  github_com_blueship581_gbinsureapi_internal_dto.AdminLoginRequest:
+  dto.AdminLoginRequest:
     properties:
       password:
         type: string
@@ -10,14 +10,25 @@ definitions:
     - password
     - username
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.CalculatePresettlementRequest:
+  dto.CalculatePresettlementRequest:
     properties:
       batch_id:
         type: integer
     required:
     - batch_id
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.CreateClientRequest:
+  dto.CreateAdjustmentRequest:
+    properties:
+      reason:
+        maxLength: 500
+        type: string
+      target_pay_amount:
+        type: number
+    required:
+    - reason
+    - target_pay_amount
+    type: object
+  dto.CreateClientRequest:
     properties:
       client_type:
         enum:
@@ -38,7 +49,7 @@ definitions:
     - name
     - role
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.FeeItemDTO:
+  dto.FeeItemDTO:
     properties:
       item_code:
         maxLength: 32
@@ -74,14 +85,22 @@ definitions:
     - item_type
     - medical_category
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.SubmitSettlementRequest:
+  dto.ReviewAdjustmentRequest:
+    properties:
+      approved:
+        type: boolean
+      reason:
+        maxLength: 500
+        type: string
+    type: object
+  dto.SubmitSettlementRequest:
     properties:
       presettlement_id:
         type: integer
     required:
     - presettlement_id
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.UpdateClientStatusRequest:
+  dto.UpdateClientStatusRequest:
     properties:
       status:
         enum:
@@ -91,7 +110,7 @@ definitions:
     required:
     - status
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.UploadFeesRequest:
+  dto.UploadFeesRequest:
     properties:
       client_id:
         type: integer
@@ -99,7 +118,7 @@ definitions:
         type: integer
       items:
         items:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.FeeItemDTO'
+          $ref: '#/definitions/dto.FeeItemDTO'
         minItems: 1
         type: array
     required:
@@ -107,7 +126,7 @@ definitions:
     - insured_person_id
     - items
     type: object
-  github_com_blueship581_gbinsureapi_internal_dto.VerifyRequest:
+  dto.VerifyRequest:
     properties:
       id_card_no:
         type: string
@@ -117,7 +136,7 @@ definitions:
     - id_card_no
     - medical_card_no
     type: object
-  github_com_blueship581_gbinsureapi_internal_util.Response:
+  util.Response:
     properties:
       code:
         type: integer
@@ -144,14 +163,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.AdminLoginRequest'
+          $ref: '#/definitions/dto.AdminLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       summary: 管理员登录
       tags:
       - auth
@@ -174,7 +193,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -193,7 +212,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -215,7 +234,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - BearerAuth: []
       summary: 调用方列表
@@ -231,14 +250,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.CreateClientRequest'
+          $ref: '#/definitions/dto.CreateClientRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - BearerAuth: []
       summary: 创建调用方
@@ -257,12 +276,12 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.UpdateClientStatusRequest'
+          $ref: '#/definitions/dto.UpdateClientStatusRequest'
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - BearerAuth: []
       summary: 更新调用方状态
@@ -285,7 +304,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       summary: 换取服务令牌
       tags:
       - clients
@@ -300,14 +319,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.VerifyRequest'
+          $ref: '#/definitions/dto.VerifyRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -326,7 +345,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -344,14 +363,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.UploadFeesRequest'
+          $ref: '#/definitions/dto.UploadFeesRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -373,7 +392,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -392,7 +411,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -410,14 +429,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.CalculatePresettlementRequest'
+          $ref: '#/definitions/dto.CalculatePresettlementRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -439,7 +458,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -458,13 +477,92 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
       summary: 日终对账
       tags:
       - reconciliations
+  /api/v1/settlement-adjustments:
+    get:
+      parameters:
+      - description: 调用方 ID
+        in: query
+        name: client_id
+        type: integer
+      - description: 状态(pending_review/approved/rejected)
+        in: query
+        name: status
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 差额补退单列表
+      tags:
+      - settlement-adjustments
+  /api/v1/settlement-adjustments/{adjustment_no}:
+    get:
+      parameters:
+      - description: 差额补退单号
+        in: path
+        name: adjustment_no
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 差额补退单详情
+      tags:
+      - settlement-adjustments
+  /api/v1/settlement-adjustments/{adjustment_no}/review:
+    post:
+      consumes:
+      - application/json
+      description: 复核通过后订单标记已补退并生成负向记录冲减差额；驳回保留原因且可再次申请；重复/并发复核只成功一次
+      parameters:
+      - description: 差额补退单号
+        in: path
+        name: adjustment_no
+        required: true
+        type: string
+      - description: 复核结论（approved + reason）
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReviewAdjustmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 差额补退复核
+      tags:
+      - settlement-adjustments
   /api/v1/settlements:
     get:
       parameters:
@@ -484,7 +582,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -503,13 +601,61 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
       summary: 结算单详情
       tags:
       - settlements
+  /api/v1/settlements/{settlement_no}/adjustments:
+    get:
+      parameters:
+      - description: 结算单号
+        in: path
+        name: settlement_no
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 结算单差额补退记录
+      tags:
+      - settlement-adjustments
+    post:
+      consumes:
+      - application/json
+      description: 已结算订单提交目标医保支付额与原因后生成待复核差额单；同一订单只允许一条待复核记录，目标金额小于零或不小于原支付额时拒绝
+      parameters:
+      - description: 结算单号
+        in: path
+        name: settlement_no
+        required: true
+        type: string
+      - description: 目标医保支付额与原因
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAdjustmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/util.Response'
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: 结算差额补退申请
+      tags:
+      - settlement-adjustments
   /api/v1/settlements/{settlement_no}/reverse:
     post:
       description: 结算当日全额回退
@@ -523,7 +669,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
@@ -541,14 +687,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_dto.SubmitSettlementRequest'
+          $ref: '#/definitions/dto.SubmitSettlementRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_blueship581_gbinsureapi_internal_util.Response'
+            $ref: '#/definitions/util.Response'
       security:
       - ApiKeyAuth: []
       - BearerAuth: []
